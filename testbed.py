@@ -135,6 +135,22 @@ for yang in netcap:
         pass 
 
 
+namespace = 'urn:ietf:params:xml:ns:yang:cisco-ospf'
+ip_filter = lxml.etree.tostring(
+    E(
+        'filter',
+        E(
+            'bgp',
+            E(
+                'bgp-protocol'
+            ),
+            xmlns=namespace
+        )
+    ), pretty_print=True
+).decode()
+xml_response = m.get(filter=ip_filter).xml 
+dict_response = xmltodict.parse(xml_response)['rpc-reply']['data']
+pprint(dict_response)
 
 
 # Disconnect
