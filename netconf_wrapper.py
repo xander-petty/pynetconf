@@ -12,6 +12,7 @@ from lxml import etree
 import xmltodict
 from pprint import pprint 
 from time import sleep 
+import json 
 
 class NetConf():
     def __init__(self, host, port, username, password, hostkey_verify=False):
@@ -108,12 +109,12 @@ if __name__ == '__main__':
     sleep(2)
     
     # TEST INTERFACE YANG
-    interfaces = netconf.get_ietf_interfaces()['interfaces']['interface']
+    interfaces = json.loads(json.dumps(netconf.get_ietf_interfaces()['interfaces']['interface']))
     pprint(interfaces)
     sleep(2)
 
     # TEST ROUTING YANG 
-    routing = netconf.get_ietf_routing_instance()['routing']['routing-instance']
+    routing = json.loads(json.dumps(netconf.get_ietf_routing_instance()['routing']['routing-instance']))
     pprint(routing)
     sleep(2)
 

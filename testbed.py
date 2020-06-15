@@ -135,14 +135,14 @@ for yang in netcap:
         pass 
 
 
-namespace = 'urn:ietf:params:xml:ns:yang:cisco-ospf'
+namespace = 'urn:cisco:params:xml:ns:yang:cisco-ethernet'
 ip_filter = lxml.etree.tostring(
     E(
         'filter',
         E(
-            'bgp',
+            'ethernet',
             E(
-                'bgp-protocol'
+                'duplex'
             ),
             xmlns=namespace
         )
@@ -152,6 +152,24 @@ xml_response = m.get(filter=ip_filter).xml
 dict_response = xmltodict.parse(xml_response)['rpc-reply']['data']
 pprint(dict_response)
 
+
+
+namespace = 'https://cisco.com/ns/yang/ned/ios'
+test_filter = lxml.etree.tostring(
+    E(
+        'filter',
+        E(
+            'native',
+            E(
+                'interface'
+            ),
+            xmlns=namespace
+        ),
+        type='subtree'
+    ), pretty_print=True
+).decode()
+xml_response = m.get(filter=test_filter).xml
+dict_response = xmltodict.parse(xml_response)['rpc-reply']['data']
 
 # Disconnect
 m.close_session()
