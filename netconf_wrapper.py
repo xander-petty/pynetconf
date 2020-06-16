@@ -142,7 +142,7 @@ if __name__ == '__main__':
     sleep(2)
 
     # TEST DOWNLOAD ALL NETCONF-YANG MODELS 
-    folder_name = 'yang_model_test'
+    folder_name = 'yang_models-2'
     netconf.download_netconf_capabilities(folder_name)
     sleep(2)
 

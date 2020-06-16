@@ -171,5 +171,97 @@ test_filter = lxml.etree.tostring(
 xml_response = m.get(filter=test_filter).xml
 dict_response = xmltodict.parse(xml_response)['rpc-reply']['data']
 
+
+namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-interfaces-oper'
+iface_filter = lxml.etree.tostring(
+    E(
+        'filter',
+        E(
+            'interfaces',
+            E(
+                'interface'
+            ),
+            xmlns=namespace
+        )
+    ), pretty_print=True
+).decode()
+xml_response = m.get(filter=iface_filter).xml
+dict_response = xmltodict.parse(xml_response)['rpc-reply']['data']['interfaces']['interface']
+json_response = json.loads(json.dumps(dict_response))
+pprint(json_response)
+
+namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-vlan-oper'
+vlan_filter = lxml.etree.tostring(
+    E(
+        'filter',
+        E(
+            'vlans',
+            E(
+                'vlan'
+            ),
+            xmlns=namespace
+        )
+    ), pretty_print=True
+).decode()
+xml_response = m.get(filter=vlan_filter).xml
+dict_response = xmltodict.parse(xml_response)['rpc-reply']['data']['vlans']['vlan']
+json_response = json.loads(json.dumps(dict_response))
+pprint(json_response)
+
+namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-acl-oper'
+acl_filter = lxml.etree.tostring(
+    E(
+        'filter',
+        E(
+            'access-lists',
+            E(
+                'access-list'
+            ),
+            xmlns=namespace
+        )
+    ), pretty_print=True
+).decode()
+xml_response = m.get(filter=acl_filter).xml
+dict_response = xmltodict.parse(xml_response)['rpc-reply']['data']['access-lists']['access-list']
+json_response = json.loads(json.dumps(dict_response))
+pprint(json_response)
+
+namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-tcam-oper'
+tcam_filter = lxml.etree.tostring(
+    E(
+        'filter',
+        E(
+            'tcam-details',
+            E(
+                'tcam-detail'
+            ),
+            xmlns=namespace
+        )
+    ), pretty_print=True
+).decode()
+xml_response = m.get(filter=tcam_filter).xml
+dict_response = xmltodict.parse(xml_response)['rpc-reply']['data']['tcam-details']['tcam-detail']
+json_response = json.loads(json.dumps(dict_response))
+pprint(json_response)
+
+
+namespace = 'http://openconfig.net/yang/interfaces'
+open_iface = lxml.etree.tostring(
+    E(
+        'filter',
+        E(
+            'interfaces',
+            E(
+                'interface'
+            ),
+            xmlns=namespace
+        )
+    ), pretty_print=True
+).decode()
+xml_response = m.get(filter=open_iface).xml
+dict_response = xmltodict.parse(xml_response)['rpc-reply']['data']['interfaces']['interface']
+json_response = json.loads(json.dumps(dict_response))
+pprint(json_response)
+
 # Disconnect
 m.close_session()
