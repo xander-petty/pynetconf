@@ -34,11 +34,14 @@ class NetConf():
         netcap = []
         cap = self.m.server_capabilities
         for i in cap:
-            if str(i).__contains__('urn'):
-                if str(i).__contains__('yang:'):
-                    netcap.append(
-                        i.split('yang:')[1].split('?')[0]
-                    )
+            if str(i).__contains__('yang:'):
+                netcap.append(
+                    i.split('yang:')[1].split('?')[0]
+                )
+            elif str(i).__contains__('yang/'):
+                netcap.append(
+                    i.split('yang/')[1].split('?')[0]
+                )
         return netcap 
     def download_netconf_capabilities(self, folder):
         cwd = os.getcwd()
@@ -47,7 +50,9 @@ class NetConf():
         cap = self.list_netconf_capabilities()
         for yang in cap:
             try:
-                schema = str(self.m.get_schema(yang))
+                xml_response = self.m.get_schema(yang).xml
+                dict_response = xmltodict.parse(xml_response)
+                schema = dict_response['rpc-reply']['data']['#text']
                 name = str(f'{yang}.yang')
                 write_path = path + '\\' + name
                 file = open(write_path, 'w')
@@ -95,8 +100,10 @@ class NetConf():
 if __name__ == '__main__':
     username = 'developer'
     password = 'C1sco12345'
-    ip = 'ios-xe-mgmt.cisco.com'
-    port = 10000
+    # ip = 'ios-xe-mgmt.cisco.com'
+    # port = 10000
+    ip = '10.10.20.100'
+    port = '830'
     params = {
         'username': username,
         'password': password,
