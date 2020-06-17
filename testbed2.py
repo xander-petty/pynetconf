@@ -180,3 +180,129 @@ if __name__ == '__main__':
         ), pretty_print=True
     ).decode()
     output = m.edit_config(xml_config)
+
+    namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-native'
+    xml_filter = etree.tostring(
+        E(
+            'filter',
+            E(
+                'native',
+                E(
+                    'interface',
+                    E(
+                        'Ethernet'
+                    )
+                ),
+                xmlns=namespace
+            )
+        ), pretty_print=True
+    ).decode()
+    xml_response = m.get(filter=xml_filter).xml
+    dict_response = xmltodict.parse(xml_response)['rpc-reply']['data']['native']['interface']['Ethernet']
+    json_response = json.loads(json.dumps(dict_response))
+    pprint(json_response)
+
+    # Testing ACL Config
+    namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-acl'
+    xml_config = etree.tostring(
+        E(
+            'config',
+            E(
+                'standard',
+                '''
+                <name xmlns:ios-types="http://cisco.com/ns/yang/Cisco-IOS-XE-types">
+                    '12'
+                </name>
+                ''',
+                E(
+                    'access-list-seq-rule',
+                    E(
+                        'sequence',
+                        '10'
+                    ),
+                    E(
+                        'permit',
+                        E(
+                            'std-ace',
+                            E(
+                                'any'
+                            )
+                        )
+                    )
+                ),
+                xmlns=namespace
+            )
+        ), pretty_print=True
+    ).decode()
+    m.edit_config(xml_config).xml
+
+
+    namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-acl'
+    xml_config = etree.tostring(
+        E(
+            'config',
+            E(
+                'native',
+                E(
+                    'ip',
+                    E(
+                        'access-list',
+                        E(
+                            'standard',
+                            E(
+                                'name',
+                                '12'
+                            ),
+                            E(
+                                'access-list-seq-rule',
+                                E(
+                                    'sequence',
+                                    '00000010'
+                                ),
+                                E(
+                                    'permit',
+                                    E(
+                                        'std-ace',
+                                        E(
+                                            'any'
+                                        )
+                                    )
+                                )
+                            ),
+                            xmlns=namespace
+                        )
+                    )
+                ),
+                xmlns='http://cisco.com/ns/yang/Cisco-IOS-XE-native'
+            )
+        ), pretty_print=True
+    ).decode()
+    m.edit_config(xml_config)
+
+    native_ns = 'http://cisco.com/ns/yang/Cisco-IOS-XE-native'
+    namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-acl'
+    xml_filter = etree.tostring(
+        E(
+            'filter',
+            E(
+                'native',
+                E(
+                    'ip',
+                    E(
+                        'access-list',
+                        E(
+                            'standard',
+                            E(
+                                'name',
+                                '12'
+                            ),
+                            xmlns=namespace
+                        )
+                    )
+                ),
+                xmlns=native_ns
+            )
+        ), pretty_print=True
+    ).decode()
+    output = m.get_config(source='candidate', filter=xml_filter).xml
+
