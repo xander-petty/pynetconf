@@ -31,20 +31,152 @@ def generate_netconf_xml(namespace, container, leaf):
     ).decode()
     return netconf_filter
 
+def lazy_netconf(nc_manager, namespace, container, leaf):
+    xml_filter = generate_netconf_xml(namespace, container, leaf)
+    output = nc_manager.get(filter=xml_filter).xml
+    json_data = netconf_xmljson(output, container, leaf)
+    pprint(json_data)
+
 if __name__ == '__main__':
-    username = input('Username: ')
-    password = getpass()
-    ip = '10.11.255.133'
-    port = 830
+    # username = input('Username: ')
+    # password = getpass()
+    # ip = '10.11.255.133'
+    # port = 830
+    ip =  'ios-xe-mgmt.cisco.com'
+    username = 'developer'
+    password = 'C1sco12345'
+    port = 10000
     params = {
         'host': ip,
         'username': username,
         'password': password,
-        'port': port
+        'port': port,
+        'hostkey_verify': False
     }
-    m = manager(**params)
+    m = manager.connect(**params)
 
-    # Testing shorthand netconf 
+    # Testing Operational CDP
     namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-cdp-oper'
     container = 'cdp-neighbor-details'
     leaf = 'cdp-neighbor-detail'
+    lazy_netconf(m, namespace, container, leaf)
+
+    # Testing Operational ACL
+    namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-acl-oper'
+    container = 'access-lists'
+    leaf = 'access-list'
+    lazy_netconf(m, namespace, container, leaf)
+
+    # Testing ACL Config
+    namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-acl'
+    container = 'extended'
+    leaf = 'access-list-seq-rule'
+    lazy_netconf(m, namespace, container, leaf)
+
+    # Testing Route Map Config
+    namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-native'
+    container ='route-map'
+    leaf = 'name'
+    lazy_netconf(m, namespace, container, leaf)
+
+    # Testing Routing
+    namespace = 'urn:ietf:params:xml:ns:yang:ietf-routing'
+    container = 'routing'
+    leaf = 'routing-instance'
+    lazy_netconf(m, namespace, container, leaf)
+
+    # Testing Routing
+    namespace = 'urn:ietf:params:xml:ns:yang:ietf-routing'
+    container = 'routing-state'
+    leaf = 'routing-instance'
+    lazy_netconf(m, namespace, container, leaf)
+
+    # Testing Routing
+    namespace = 'http://openconfig.net/yang/local-routing'
+    container = 'local-routes'
+    leaf = 'config'
+    lazy_netconf(m, namespace, container, leaf)
+
+    # ARP Test
+    namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-arp-oper'
+    container = 'arp-data'
+    leaf = 'arp-vrf'
+    lazy_netconf(m, namespace, container, leaf)
+
+    # Testing Operational Interfaces
+    namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-interfaces-oper'
+    container = 'interfaces'
+    leaf = 'interface'
+    lazy_netconf(m, namespace, container, leaf)
+
+    # Testing Config of ACL
+    namespace = 'http://cisco.com/ns/yang/Cisco-IOS-XE-acl'
+    xml_config = etree.tostring(
+        E(
+            'config',
+            E(
+                'extended',
+                'test_acl',
+                E(
+                    'access-list-seq-rule',
+                    E(
+                        'sequence',
+                        '10'
+                    ), # Seq 
+                    E(
+                        'ace-rule',
+                        E(
+                            'action',
+                            'permit'
+                        ), # Action 
+                        E(
+                            'protocol',
+                            'ip'
+                        ), # Protocol match 
+                        E(
+                            'source-choice',
+                            E(
+                                'any'
+                            ) # Src Match 
+                        ), # Source Choice 
+                        E(
+                            'destination-choice',
+                            E(
+                                'any'
+                            ) # Dest Match
+                        ) # Dest Choice 
+                    ) # Rule
+                ), # Seq Rule
+                xmlns=namespace
+            ) #ACL Name
+        ), pretty_print=True
+    ).decode()
+    output = m.edit_config(xml_config)
+
+    # Testing Loopback config
+    namespace = 'urn:ietf:params:xml:ns:yang:ietf-interfaces'
+    xml_config = etree.tostring(
+        E(
+            'config',
+            E(
+                'interfaces',
+                E(
+                    'interface',
+                    E(
+                        'name',
+                        'Loopback 62'
+                    ),
+                    E(
+                        'enabled',
+                        'true'
+                    ),
+                    E(
+                        'description',
+                        'Netconf configured Loopback'
+                    )
+                ),
+                xmlns=namespace
+            )
+        ), pretty_print=True
+    ).decode()
+    output = m.edit_config(xml_config)
